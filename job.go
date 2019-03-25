@@ -32,10 +32,6 @@ func (apiClient *ApiClient) CreateJob(jcr JobCreationRequest) (job Job, err erro
 
 	job.apiClient = apiClient
 
-	if resp.StatusCode == 201 {
-		return
-	}
-
 	return
 }
 

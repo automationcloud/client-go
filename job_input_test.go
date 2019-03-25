@@ -8,9 +8,10 @@ import (
 	"testing"
 )
 
-func TestCreateJob(t *testing.T) {
+func TestCreateInput(t *testing.T) {
 	t.Run("Invalid input", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(400)
 			fmt.Fprintln(w, `{ "object": "error",
 				"code": "badRequest",
@@ -27,7 +28,9 @@ func TestCreateJob(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		apiClient := NewApiClient(&http.Client{}, "").WithBaseURL(ts.URL)
+		client := &http.Client{}
+		// witness.DebugClient(client)
+		apiClient := NewApiClient(client, "").WithBaseURL(ts.URL)
 		job := Job{Id: ":id"}
 		job.apiClient = apiClient
 		_, err := job.CreateInput(InputCreationRequest{})
