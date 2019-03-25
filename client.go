@@ -3,111 +3,79 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type ApiClient struct {
-	Client    *http.Client
-	BaseUrl   string
-	SecretKey string
+	Client           *http.Client
+	SecretKey        string
+	baseURL          string
+	protocolURL      string
+	protocol         *Protocol
+	protocolLoadedAt time.Time
+}
+
+func NewApiClient(httpClient *http.Client, secretKey string) *ApiClient {
+	return &ApiClient{
+		Client:      httpClient,
+		SecretKey:   secretKey,
+		baseURL:     "https://api.automationcloud.net",
+		protocolURL: "https://protocol.automationcloud.net/schema.json",
+	}
+}
+
+func (apiClient *ApiClient) WithProtocolURL(url string) *ApiClient {
+	apiClient.protocolURL = url
+	return apiClient
+}
+
+func (apiClient *ApiClient) WithBaseURL(url string) *ApiClient {
+	apiClient.baseURL = url
+	return apiClient
 }
 
 func (apiClient *ApiClient) call(method string, path string, payload interface{}) (res *http.Response, err error) {
 	json, err := json.Marshal(payload)
-	req, err := http.NewRequest(method, apiClient.BaseUrl+path, bytes.NewBuffer(json))
+	req, err := http.NewRequest(method, apiClient.baseURL+path, bytes.NewBuffer(json))
 	if err != nil {
-		return
+		return res, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.SetBasicAuth(apiClient.SecretKey, "")
 	res, err = apiClient.Client.Do(req)
 	if err != nil {
-		return
-	}
-	fmt.Println(method, path, res.Status)
-	return
-}
-
-func (apiClient *ApiClient) CreateJob(serviceId string, data map[string]interface{}, callbackUrl string) (job Job, err error) {
-	resp, err := apiClient.call(
-		"POST",
-		"/jobs",
-		JobCreationRequest{ServiceId: serviceId, Data: data, CallbackUrl: callbackUrl},
-	)
-
-	if err != nil {
-		return
+		return res, err
 	}
 
-	err = ReadBody(resp, &job)
-	job.apiClient = apiClient
-	return
+	if 500 <= res.StatusCode && res.StatusCode <= 599 {
+		return res, errors.New("server error")
+	}
+
+	if res.StatusCode == 400 {
+		err = validationError(res)
+		return res, err
+	}
+
+	if 400 < res.StatusCode && res.StatusCode <= 499 {
+		return res, errors.New("client error: " + res.Status)
+	}
+
+	// fmt.Println(method, path, res.Status)
+	return res, err
 }
 
-func ReadBody(res *http.Response, data interface{}) (err error) {
+func readBody(res *http.Response, data interface{}) (err error) {
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return
 	}
-	// fmt.Println(string(body))
 	err = json.Unmarshal(body, data)
 	if err != nil {
 		return
 	}
 	return
-}
-
-func (job *Job) Cancel() (err error) {
-	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/cancel", nil)
-	return
-}
-
-func (job *Job) Fetch() bool {
-	resp, err := job.apiClient.call("GET", "/jobs/"+job.Id, nil)
-	if err != nil {
-		return false
-	}
-
-	err = ReadBody(resp, job)
-	if err != nil {
-		return false
-	}
-
-	return true
-
-}
-
-func (apiClient *ApiClient) FetchJob(id string) (job Job, err error) {
-	resp, err := apiClient.call("GET", "/jobs/"+id, nil)
-	if err != nil {
-		return
-	}
-
-	err = ReadBody(resp, &job)
-	if err != nil {
-		return
-	}
-
-	job.apiClient = apiClient
-	return
-
-}
-
-func (apiClient *ApiClient) Get(url string, data interface{}) (err error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return
-	}
-
-	res, err := apiClient.Client.Do(req)
-	if err != nil {
-		return
-	}
-
-	err = ReadBody(res, &data)
-	return
-
 }
