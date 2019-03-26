@@ -13,6 +13,7 @@ type PreviousJobOutput struct {
 	Variability float64     `json:"variability"`
 }
 
+// ListPreviousJobOutputs fetches previous outputs for a service.
 func (apiClient *ApiClient) ListPreviousJobOutputs(serviceId string) ([]PreviousJobOutput, error) {
 	resp, err := apiClient.call("GET", fmt.Sprintf("/services/%s/previous-job-outputs", serviceId), nil)
 	if err != nil {
