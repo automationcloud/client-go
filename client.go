@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -37,8 +38,15 @@ func (apiClient *ApiClient) WithBaseURL(url string) *ApiClient {
 }
 
 func (apiClient *ApiClient) call(method string, path string, payload interface{}) (res *http.Response, err error) {
-	json, err := json.Marshal(payload)
-	req, err := http.NewRequest(method, apiClient.baseURL+path, bytes.NewBuffer(json))
+	var data io.Reader
+	if payload != nil {
+		json, err := json.Marshal(payload)
+		if err != nil {
+			return res, err
+		}
+		data = bytes.NewBuffer(json)
+	}
+	req, err := http.NewRequest(method, apiClient.baseURL+path, data)
 	if err != nil {
 		return res, err
 	}
