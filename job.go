@@ -1,5 +1,12 @@
 package client
 
+import (
+	"errors"
+	"fmt"
+)
+
+// Job represents automation cloud job object.
+// It used to control automation flow: provide inputs, consume outputs, watch state.
 type Job struct {
 	Id               string `json:"id"`
 	ServiceName      string `json:"serviceName"`
@@ -12,12 +19,15 @@ type Job struct {
 	apiClient        *ApiClient
 }
 
+// JobCreationRequest describes a request to create a job
 type JobCreationRequest struct {
 	ServiceId   string                 `json:"serviceId"`
 	Data        map[string]interface{} `json:"input"`
 	CallbackUrl string                 `json:"callbackUrl,omitempty"`
 }
 
+// CreateJob makes an http request to run a job.
+// It may return ValidationError in case if invalid data provided.
 func (apiClient *ApiClient) CreateJob(jcr JobCreationRequest) (job Job, err error) {
 	resp, err := apiClient.call("POST", "/jobs", jcr)
 
@@ -35,7 +45,12 @@ func (apiClient *ApiClient) CreateJob(jcr JobCreationRequest) (job Job, err erro
 	return
 }
 
+// Cancel sends http requst to cancel job
+// Yields an error in case of attempt to cancel job not in "awaitingInput" state
 func (job *Job) Cancel() (err error) {
+	if job.State != "awaitingInput" {
+		return errors.New(fmt.Sprintf("can not cancel job in %v state", job.State))
+	}
 	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/cancel", nil)
 	return
 }
