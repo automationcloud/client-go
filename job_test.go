@@ -131,7 +131,7 @@ func TestFetchJob(t *testing.T) {
 	})
 
 	t.Run("unhappy case", func(t *testing.T) {
-		status = 500
+		status = 404
 		_, err := apiClient.FetchJob("id")
 		if err == nil {
 			t.Error("expected error")
