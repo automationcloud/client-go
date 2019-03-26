@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -51,7 +50,7 @@ func (apiClient *ApiClient) call(method string, path string, payload interface{}
 	}
 
 	if 500 <= res.StatusCode && res.StatusCode <= 599 {
-		return res, errors.New("server error")
+		return res, ServerError
 	}
 
 	if res.StatusCode == 400 {
@@ -60,7 +59,7 @@ func (apiClient *ApiClient) call(method string, path string, payload interface{}
 	}
 
 	if 400 < res.StatusCode && res.StatusCode <= 499 {
-		return res, errors.New("client error: " + res.Status)
+		return res, ClientError
 	}
 
 	// fmt.Println(method, path, res.Status)

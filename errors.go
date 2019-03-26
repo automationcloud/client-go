@@ -1,8 +1,14 @@
 package client
 
 import (
+	"errors"
 	"net/http"
 	"strings"
+)
+
+var (
+	ServerError = errors.New("server error")
+	ClientError = errors.New("client error")
 )
 
 // ValidationError contains information about details of validation failure.
