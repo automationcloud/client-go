@@ -150,9 +150,19 @@ func TestCancel(t *testing.T) {
 	defer ts.Close()
 	apiClient := NewApiClient(&http.Client{}, "").WithBaseURL(ts.URL)
 
-	job := &Job{apiClient: apiClient}
-	err := job.Cancel()
-	if err != nil {
-		t.Errorf("Expect job.Cancel() work without error, got %v", err)
-	}
+	t.Run("happy case", func(t *testing.T) {
+		job := &Job{apiClient: apiClient, State: "awaitingInput"}
+		err := job.Cancel()
+		if err != nil {
+			t.Errorf("Expect job.Cancel() work without error, got %v", err)
+		}
+	})
+
+	t.Run("cancel job in final state", func(t *testing.T) {
+		job := &Job{apiClient: apiClient, State: "fail"}
+		err := job.Cancel()
+		if err == nil {
+			t.Error("Expect job.Cancel() yield an error, got nothing")
+		}
+	})
 }
