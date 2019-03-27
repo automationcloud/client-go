@@ -29,13 +29,8 @@ type JobCreationRequest struct {
 // CreateJob makes an http request to run a job.
 // It may return ValidationError in case if invalid data provided.
 func (apiClient *ApiClient) CreateJob(jcr JobCreationRequest) (job Job, err error) {
-	resp, err := apiClient.call("POST", "/jobs", jcr)
+	_, err = apiClient.call("POST", "/jobs", jcr, &job)
 
-	if err != nil {
-		return
-	}
-
-	err = readBody(resp, &job)
 	if err != nil {
 		return
 	}
@@ -51,17 +46,12 @@ func (job *Job) Cancel() (err error) {
 	if job.State != "awaitingInput" {
 		return errors.New(fmt.Sprintf("can not cancel job in %v state", job.State))
 	}
-	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/cancel", nil)
+	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/cancel", nil, nil)
 	return
 }
 
 func (job *Job) Fetch() bool {
-	resp, err := job.apiClient.call("GET", "/jobs/"+job.Id, nil)
-	if err != nil {
-		return false
-	}
-
-	err = readBody(resp, job)
+	_, err := job.apiClient.call("GET", "/jobs/"+job.Id, nil, job)
 	if err != nil {
 		return false
 	}
@@ -71,12 +61,7 @@ func (job *Job) Fetch() bool {
 }
 
 func (apiClient *ApiClient) FetchJob(id string) (job Job, err error) {
-	resp, err := apiClient.call("GET", "/jobs/"+id, nil)
-	if err != nil {
-		return
-	}
-
-	err = readBody(resp, &job)
+	_, err = apiClient.call("GET", "/jobs/"+id, nil, &job)
 	if err != nil {
 		return
 	}

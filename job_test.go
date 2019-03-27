@@ -117,7 +117,7 @@ func TestFetchJob(t *testing.T) {
 		}`)
 	}))
 	defer ts.Close()
-	apiClient := NewApiClient(&http.Client{}, "").WithBaseURL(ts.URL)
+	apiClient := NewApiClient(&http.Client{}, "apikey").WithBaseURL(ts.URL)
 
 	t.Run("happy case", func(t *testing.T) {
 		status = 200
@@ -148,7 +148,7 @@ func TestCancel(t *testing.T) {
 		}`)
 	}))
 	defer ts.Close()
-	apiClient := NewApiClient(&http.Client{}, "").WithBaseURL(ts.URL)
+	apiClient := NewApiClient(&http.Client{}, "apikey").WithBaseURL(ts.URL)
 
 	t.Run("happy case", func(t *testing.T) {
 		job := &Job{apiClient: apiClient, State: "awaitingInput"}

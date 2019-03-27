@@ -1,7 +1,6 @@
 package client
 
 import (
-	"net/http"
 	"time"
 )
 
@@ -23,27 +22,12 @@ type InputDef struct {
 }
 
 func (c *ApiClient) FetchProtocol() (protocol *Protocol, err error) {
-	req, err := http.NewRequest(
-		"GET",
-		c.protocolURL,
-		nil,
-	)
-	if err != nil {
-		return
+	err = c.requestProtocol("/schema.json", &protocol)
+	if err == nil {
+		c.protocolLoadedAt = time.Now()
+		c.protocol = protocol
 	}
-
-	res, err := c.Client.Do(req)
-	if err != nil {
-		return
-	}
-
-	if err = readBody(res, &protocol); err != nil {
-		return protocol, err
-	}
-
-	c.protocolLoadedAt = time.Now()
-	c.protocol = protocol
-	return protocol, nil
+	return protocol, err
 }
 
 func (c *ApiClient) GetProtocol() (*Protocol, error) {

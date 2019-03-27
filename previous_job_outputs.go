@@ -15,16 +15,19 @@ type PreviousJobOutput struct {
 
 // ListPreviousJobOutputs fetches previous outputs for a service.
 func (apiClient *ApiClient) ListPreviousJobOutputs(serviceId string) ([]PreviousJobOutput, error) {
-	resp, err := apiClient.call("GET", fmt.Sprintf("/services/%s/previous-job-outputs", serviceId), nil)
+	var body struct {
+		Data []PreviousJobOutput `json:"data"`
+	}
+
+	_, err := apiClient.call(
+		"GET",
+		fmt.Sprintf("/services/%s/previous-job-outputs", serviceId),
+		nil,
+		&body,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	var body struct {
-		Data []PreviousJobOutput `json:"data"`
-	}
-	if err := readBody(resp, &body); err != nil {
-		return nil, err
-	}
 	return body.Data, nil
 }

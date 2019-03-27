@@ -23,7 +23,7 @@ func NewApiClient(httpClient *http.Client, secretKey string) *ApiClient {
 		Client:      httpClient,
 		SecretKey:   secretKey,
 		baseURL:     "https://api.automationcloud.net",
-		protocolURL: "https://protocol.automationcloud.net/schema.json",
+		protocolURL: "https://protocol.automationcloud.net",
 	}
 }
 
@@ -37,7 +37,37 @@ func (apiClient *ApiClient) WithBaseURL(url string) *ApiClient {
 	return apiClient
 }
 
-func (apiClient *ApiClient) call(method string, path string, payload interface{}) (res *http.Response, err error) {
+func (apiClient *ApiClient) requestProtocol(path string, result interface{}) error {
+	_, err := request(
+		apiClient.Client,
+		"GET",
+		apiClient.protocolURL+path,
+		"",
+		nil,
+		result,
+	)
+	return err
+}
+
+func (apiClient *ApiClient) call(method string, path string, payload interface{}, result interface{}) (res *http.Response, err error) {
+	return request(
+		apiClient.Client,
+		method,
+		apiClient.baseURL+path,
+		apiClient.SecretKey,
+		payload,
+		result,
+	)
+}
+
+func request(
+	client *http.Client,
+	method string,
+	url string,
+	secretKey string,
+	payload interface{},
+	result interface{},
+) (res *http.Response, err error) {
 	var data io.Reader
 	if payload != nil {
 		json, err := json.Marshal(payload)
@@ -46,13 +76,15 @@ func (apiClient *ApiClient) call(method string, path string, payload interface{}
 		}
 		data = bytes.NewBuffer(json)
 	}
-	req, err := http.NewRequest(method, apiClient.baseURL+path, data)
+	req, err := http.NewRequest(method, url, data)
 	if err != nil {
 		return res, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(apiClient.SecretKey, "")
-	res, err = apiClient.Client.Do(req)
+	if secretKey != "" {
+		req.SetBasicAuth(secretKey, "")
+	}
+	res, err = client.Do(req)
 	if err != nil {
 		return res, err
 	}
@@ -68,6 +100,10 @@ func (apiClient *ApiClient) call(method string, path string, payload interface{}
 
 	if 400 < res.StatusCode && res.StatusCode <= 499 {
 		return res, ClientError
+	}
+
+	if result != nil {
+		err = readBody(res, &result)
 	}
 
 	// fmt.Println(method, path, res.Status)

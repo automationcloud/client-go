@@ -22,15 +22,15 @@ func (v ValidationError) Error() string {
 }
 
 // parse ValidationError from http response
-func validationError(resp *http.Response) error {
+func validationError(resp *http.Response) (err error) {
 	var b struct {
 		Details struct {
 			Messages []string `json:"messages"`
 		} `json:"details"`
 	}
 
-	if err := readBody(resp, &b); err != nil {
-		return err
+	if err = readBody(resp, &b); err == nil {
+		err = ValidationError{b.Details.Messages}
 	}
-	return ValidationError{b.Details.Messages}
+	return err
 }

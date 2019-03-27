@@ -62,7 +62,7 @@ func TestReadBody(t *testing.T) {
 func TestHttpCall(t *testing.T) {
 	t.Run("invalid protocol scheme", func(t *testing.T) {
 		apiClient := NewApiClient(&http.Client{}, "").WithBaseURL("")
-		_, err := apiClient.call("BADMETHOD", "badurl", nil)
+		_, err := apiClient.call("BADMETHOD", "badurl", nil, nil)
 		if !strings.Contains(err.Error(), "unsupported protocol scheme") {
 			t.Errorf("Expected 'unsupported protocol scheme' error, got %v", err)
 		}
@@ -70,7 +70,7 @@ func TestHttpCall(t *testing.T) {
 
 	t.Run("invalid body type", func(t *testing.T) {
 		apiClient := NewApiClient(&http.Client{}, "")
-		_, err := apiClient.call("GET", "/", make(chan int, 1))
+		_, err := apiClient.call("GET", "/", make(chan int, 1), nil)
 		if !strings.Contains(err.Error(), "unsupported type: chan int") {
 			t.Errorf("Expected 'unsupported type: chan int', got %v", err)
 		}
@@ -78,7 +78,7 @@ func TestHttpCall(t *testing.T) {
 
 	t.Run("invalid method", func(t *testing.T) {
 		apiClient := NewApiClient(&http.Client{}, "").WithBaseURL("")
-		_, err := apiClient.call("/", "https:///", nil)
+		_, err := apiClient.call("/", "https:///", nil, nil)
 		if !strings.Contains(err.Error(), "net/http: invalid method \"/\"") {
 			t.Errorf("Expected 'invalid method', got %v", err)
 		}

@@ -1,9 +1,5 @@
 package client
 
-import (
-	"fmt"
-)
-
 // InputCreationRequest
 type InputCreationRequest struct {
 	Key   string      `json:"key"`
@@ -21,12 +17,6 @@ type JobInput struct {
 
 // CreateInput creates an input for job
 func (job *Job) CreateInput(inputCreationRequest InputCreationRequest) (input JobInput, err error) {
-	resp, err := job.apiClient.call("POST", "/jobs/"+job.Id+"/inputs", inputCreationRequest)
-	if err != nil {
-		return
-	}
-
-	err = readBody(resp, &input)
-	fmt.Println(err, input)
+	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/inputs", inputCreationRequest, &input)
 	return
 }
