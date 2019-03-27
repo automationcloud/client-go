@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// ApiClient represents api client, use NewApiClient() to create a new client.
 type ApiClient struct {
 	Client           *http.Client
 	SecretKey        string
@@ -18,6 +19,7 @@ type ApiClient struct {
 	protocolLoadedAt time.Time
 }
 
+// NewApiClient creates new ApiClient.
 func NewApiClient(httpClient *http.Client, secretKey string) *ApiClient {
 	return &ApiClient{
 		Client:      httpClient,
@@ -27,11 +29,13 @@ func NewApiClient(httpClient *http.Client, secretKey string) *ApiClient {
 	}
 }
 
+// WithProtocolURL allows to alternate location of a protocol.
 func (apiClient *ApiClient) WithProtocolURL(url string) *ApiClient {
 	apiClient.protocolURL = url
 	return apiClient
 }
 
+// WithProtocolURL allows to alternate location of a api.
 func (apiClient *ApiClient) WithBaseURL(url string) *ApiClient {
 	apiClient.baseURL = url
 	return apiClient
@@ -90,7 +94,7 @@ func request(
 	}
 
 	if 500 <= res.StatusCode && res.StatusCode <= 599 {
-		return res, ServerError
+		return res, ErrServer
 	}
 
 	if res.StatusCode == 400 {
@@ -99,7 +103,7 @@ func request(
 	}
 
 	if 400 < res.StatusCode && res.StatusCode <= 499 {
-		return res, ClientError
+		return res, ErrClient
 	}
 
 	if result != nil {

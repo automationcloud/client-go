@@ -1,6 +1,6 @@
 package client
 
-// InputCreationRequest
+// InputCreationRequest describes parameters for request to create input.
 type InputCreationRequest struct {
 	Key   string      `json:"key"`
 	Stage string      `json:"stage,omitempty"`
@@ -15,7 +15,7 @@ type JobInput struct {
 	CreatedAt int         `json:"createdAt"`
 }
 
-// CreateInput creates an input for job
+// CreateInput creates an input for job.
 func (job *Job) CreateInput(inputCreationRequest InputCreationRequest) (input JobInput, err error) {
 	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/inputs", inputCreationRequest, &input)
 	return

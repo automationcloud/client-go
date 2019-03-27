@@ -8,8 +8,8 @@ import (
 
 // Errors returned by a client.
 var (
-	ServerError = errors.New("server error")
-	ClientError = errors.New("client error")
+	ErrServer = errors.New("server error")
+	ErrClient = errors.New("client error")
 )
 
 // ValidationError contains information about details of validation failure.

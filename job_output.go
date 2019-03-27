@@ -1,6 +1,6 @@
 package client
 
-// JobInput represents a job output.
+// JobOutput represents a job output.
 type JobOutput struct {
 	Data      interface{} `json:"data"`
 	CreatedAt jsTime      `json:"createdAt"`

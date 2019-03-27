@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -44,7 +43,7 @@ func (apiClient *ApiClient) CreateJob(jcr JobCreationRequest) (job Job, err erro
 // Yields an error in case of attempt to cancel job not in "awaitingInput" state
 func (job *Job) Cancel() (err error) {
 	if job.State != "awaitingInput" {
-		return errors.New(fmt.Sprintf("can not cancel job in %v state", job.State))
+		return fmt.Errorf("can not cancel job in %v state", job.State)
 	}
 	_, err = job.apiClient.call("POST", "/jobs/"+job.Id+"/cancel", nil, nil)
 	return
