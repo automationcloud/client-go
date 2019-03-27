@@ -19,7 +19,7 @@ type Job struct {
 	apiClient        *ApiClient
 }
 
-// JobCreationRequest describes a request to create a job
+// JobCreationRequest describes a request to create a job.
 type JobCreationRequest struct {
 	ServiceId   string                 `json:"serviceId"`
 	Data        map[string]interface{} `json:"input"`
@@ -50,6 +50,7 @@ func (job *Job) Cancel() (err error) {
 	return
 }
 
+// Fetch loads updated version of a job, returns true if request was successful.
 func (job *Job) Fetch() bool {
 	_, err := job.apiClient.call("GET", "/jobs/"+job.Id, nil, job)
 	if err != nil {
@@ -60,13 +61,9 @@ func (job *Job) Fetch() bool {
 
 }
 
+// FetchJob requests job and returns it as a result.
 func (apiClient *ApiClient) FetchJob(id string) (job Job, err error) {
 	_, err = apiClient.call("GET", "/jobs/"+id, nil, &job)
-	if err != nil {
-		return
-	}
-
 	job.apiClient = apiClient
 	return
-
 }

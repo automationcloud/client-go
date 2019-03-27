@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Errors returned by a client.
 var (
 	ServerError = errors.New("server error")
 	ClientError = errors.New("client error")
@@ -16,12 +17,12 @@ type ValidationError struct {
 	Messages []string
 }
 
-// Error makes string representation of a validation error
+// Error makes string representation of a validation error.
 func (v ValidationError) Error() string {
 	return "validation failed: " + strings.Join(v.Messages, ", ")
 }
 
-// parse ValidationError from http response
+// parse ValidationError from http response.
 func validationError(resp *http.Response) (err error) {
 	var b struct {
 		Details struct {

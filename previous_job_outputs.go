@@ -2,6 +2,7 @@ package client
 
 import "fmt"
 
+// PreviousJobOutput is a presentation of previous job output.
 type PreviousJobOutput struct {
 	Key         string      `json:"key"`
 	Stage       string      `json:"stage"`
