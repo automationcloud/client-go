@@ -35,7 +35,7 @@ func (apiClient *ApiClient) WithProtocolURL(url string) *ApiClient {
 	return apiClient
 }
 
-// WithProtocolURL allows to alternate location of a api.
+// WithBaseURL allows to alternate location of a api.
 func (apiClient *ApiClient) WithBaseURL(url string) *ApiClient {
 	apiClient.baseURL = url
 	return apiClient
