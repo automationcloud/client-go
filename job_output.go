@@ -9,6 +9,6 @@ type JobOutput struct {
 
 // GetOutput loads job output for given key.
 func (job *Job) GetOutput(key string) (output JobOutput, err error) {
-	_, err = job.apiClient.call("GET", "/jobs/"+job.Id+"/outputs/"+key, nil, output)
+	_, err = job.apiClient.call("GET", "/jobs/"+job.Id+"/outputs/"+key, nil, &output)
 	return
 }

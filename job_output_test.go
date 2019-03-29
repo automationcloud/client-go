@@ -12,15 +12,21 @@ func TestGetOutput(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 		fmt.Fprintln(w, `{
-			"object": "job-output"
+			"object": "job-output",
+			"data": 13,
+			"key": "price"
 		}`)
 	}))
 	defer ts.Close()
 	apiClient := NewApiClient(&http.Client{}, "").WithBaseURL(ts.URL)
 
 	job := &Job{apiClient: apiClient}
-	_, err := job.GetOutput("key")
+	output, err := job.GetOutput("price")
 	if err != nil {
 		t.Errorf("Expect job.Cancel() work without error, got %v", err)
+	}
+
+	if output.Data.(float64) != 13 {
+		t.Errorf("Expected output data to be 13, got %v", output.Data)
 	}
 }
