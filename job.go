@@ -7,15 +7,16 @@ import (
 // Job represents automation cloud job object.
 // It used to control automation flow: provide inputs, consume outputs, watch state.
 type Job struct {
-	Id               string `json:"id"`
-	ServiceName      string `json:"serviceName"`
-	Category         string `json:"category"`
-	State            string `json:"state"`
-	SessionId        string `json:"sessionId"`
-	AwaitingInputKey string `json:"awaitingInputKey,omitempty"`
-	CreatedAt        jsTime `json:"createdAt"`
-	UpdatedAt        jsTime `json:"updatedAt"`
-	apiClient        *ApiClient
+	Id                 string `json:"id"`
+	ServiceName        string `json:"serviceName"`
+	Category           string `json:"category"`
+	State              string `json:"state"`
+	SessionId          string `json:"sessionId"`
+	AwaitingInputKey   string `json:"awaitingInputKey,omitempty"`
+	AwaitingInputStage string `json:"awaitingInputStage,omitempty"`
+	CreatedAt          jsTime `json:"createdAt"`
+	UpdatedAt          jsTime `json:"updatedAt"`
+	apiClient          *ApiClient
 }
 
 // JobCreationRequest describes a request to create a job.

@@ -31,9 +31,9 @@ func TestCreateInput(t *testing.T) {
 		client := &http.Client{}
 		// witness.DebugClient(client)
 		apiClient := NewApiClient(client, "").WithBaseURL(ts.URL)
-		job := Job{Id: ":id"}
+		job := Job{Id: ":id", AwaitingInputKey: "input-key"}
 		job.apiClient = apiClient
-		_, err := job.CreateInput(InputCreationRequest{})
+		_, err := job.CreateInput(13)
 		if err == nil {
 			t.Error("Expected input creation to fail with 400")
 			t.FailNow()
